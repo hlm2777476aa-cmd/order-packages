@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>订单管理</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      background: #F7F7F9;
+      color: #222;
+      font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "WenQuanYi Micro Hei", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .phone {
+      width: 375px;
+      height: 1080px;
+      margin: 0 auto;
+      background: #F7F7F9;
+      position: relative;
+      overflow: hidden;
+    }
+    .scroll {
+      height: 100%;
+      overflow: auto;
+      padding-bottom: 72px;
+    }
+    .scroll::-webkit-scrollbar { display: none; }
+    .title {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      font-weight: 600;
+      background: #fff;
+    }
+    .tabs {
+      display: flex;
+      align-items: flex-end;
+      gap: 18px;
+      height: 40px;
+      padding: 0 16px 0;
+      background: #fff;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .tab {
+      position: relative;
+      flex: none;
+      padding-bottom: 10px;
+      font-size: 14px;
+      color: #C8C8C8;
+      line-height: 20px;
+    }
+    .tab.on {
+      color: #222;
+      font-weight: 600;
+    }
+    .tab.on::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 4px;
+      width: 18px;
+      height: 3px;
+      margin-left: -9px;
+      border-radius: 2px;
+      background: #00DC9C;
+    }
+    .tab .dot {
+      position: absolute;
+      top: 0;
+      right: -6px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #FF4D4F;
+    }
+    .list { padding: 10px 12px 0; }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 14px 12px 12px;
+      margin-bottom: 10px;
+    }
+    .hd {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .who {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+    .tag {
+      flex: none;
+      height: 18px;
+      padding: 0 4px;
+      border-radius: 3px;
+      border: 1px solid #5FE0C4;
+      color: #14C9A2;
+      font-size: 11px;
+      line-height: 16px;
+    }
+    .tag.person {
+      border-color: #FFB06A;
+      color: #FF8A2A;
+    }
+    .store {
+      font-size: 14px;
+      font-weight: 500;
+      color: #222;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .side {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: none;
+    }
+    .tag.warehouse {
+      height: 20px;
+      padding: 0 6px;
+      border: 0;
+      border-radius: 4px;
+      background: #E7F9F2;
+      color: #12C48E;
+      font-size: 11px;
+      line-height: 20px;
+    }
+    .status { flex: none; font-size: 13px; color: #C8C8C8; }
+    .status.wait { color: #F0A04A; }
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: #BDBDBD;
+    }
+    .goods {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .thumb {
+      width: 56px;
+      height: 56px;
+      flex: none;
+      border-radius: 4px;
+      background: #fff;
+      object-fit: cover;
+    }
+    .thumb.phone { object-fit: contain; }
+    .gbody { flex: 1; min-width: 0; padding-top: 1px; }
+    .grow {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .name { font-size: 15px; font-weight: 500; color: #222; line-height: 21px; }
+    .price { flex: none; font-size: 16px; font-weight: 600; color: #E54545; line-height: 21px; }
+    .spec, .imei { margin-top: 2px; font-size: 12px; color: #B5B5B5; line-height: 17px; }
+    .split { height: 1px; background: #F2F2F2; margin: 12px 0; }
+    .hint {
+      margin-top: 12px;
+      font-size: 12px;
+      line-height: 17px;
+      color: #A3A3A3;
+    }
+    .logi {
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 32px;
+      padding: 0 8px 0 10px;
+      border-radius: 6px;
+      background: #F4F5F9;
+      color: #8D8D8D;
+      font-size: 12px;
+    }
+    .logi .txt {
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .logi svg { flex: none; }
+    .actions { display: flex; justify-content: flex-end; margin-top: 10px; }
+    .ship {
+      height: 32px;
+      padding: 0 16px;
+      border: 0;
+      border-radius: 16px;
+      background: #00DC9C;
+      color: #fff;
+      font-size: 13px;
+      font-family: inherit;
+    }
+    .nav {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 56px;
+      background: #fff;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      padding: 0 6px 6px;
+    }
+    .nav a {
+      width: 54px;
+      text-align: center;
+      text-decoration: none;
+      color: #C0C0C0;
+      font-size: 10px;
+      line-height: 14px;
+    }
+    .nav a.on { color: #00C98A; }
+    .nav svg { display: block; margin: 0 auto 2px; }
+    .fab {
+      position: relative;
+      top: -16px;
+      width: 62px !important;
+    }
+    .fab span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 58px;
+      height: 58px;
+      margin: 0 auto;
+      border-radius: 50%;
+      background: #00DC9C;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 15px;
+      box-shadow: 0 4px 10px rgba(0, 196, 140, 0.28);
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="scroll">
+      <div class="title">订单管理</div>
+      <div class="tabs">
+        <div class="tab on">全部</div>
+        <div class="tab">待下单</div>
+        <div class="tab">待处理</div>
+        <div class="tab">待发货</div>
+        <div class="tab">售后订单<i class="dot"></i></div>
+        <div class="tab">已完成</div>
+      </div>
+      <div class="list">
+        <article class="card">
+          <div class="hd">
+            <div class="who">
+              <span class="tag">我的</span>
+              <span class="store">yrg-测试物流-顺丰</span>
+            </div>
+            <div class="side">
+              <span class="tag warehouse">过仓清隐私</span>
+              <span class="status wait">待发货</span>
+            </div>
+          </div>
+
+          <div class="meta">
+            <span>订单编号：683088</span>
+            <span>2026-11-21 09:16:40</span>
+          </div>
+          <div class="goods">
+            <img class="thumb phone" src="assets/phone.png" alt="" />
+            <div class="gbody">
+              <div class="grow">
+                <div class="name">红米 Note 12</div>
+                <div class="price">¥268</div>
+              </div>
+              <div class="spec">黑色 | 8G+128G</div>
+              <div class="imei">IMEI：861122334455667</div>
+            </div>
+          </div>
+          <div class="actions"><button class="ship">立即发货</button></div>
+
+          <div class="split"></div>
+
+          <div class="meta">
+            <span>订单编号：683081</span>
+            <span>2026-11-20 14:18:36</span>
+          </div>
+          <div class="goods">
+            <img class="thumb phone" src="assets/phone-2.png" alt="" />
+            <div class="gbody">
+              <div class="grow">
+                <div class="name">小米 13</div>
+                <div class="price">¥428</div>
+              </div>
+              <div class="spec">白色 | 12G+256G</div>
+              <div class="imei">IMEI：864209517538642</div>
+            </div>
+          </div>
+          <div class="actions"><button class="ship">立即发货</button></div>
+
+          <div class="hint">过仓清隐私的订单每天15:00统一预约物流</div>
+        </article>
+
+        <article class="card">
+          <div class="hd">
+            <div class="who">
+              <span class="tag">我的</span>
+              <span class="store">yrg-测试物流-顺丰</span>
+            </div>
+            <div class="side">
+              <span class="tag warehouse">过仓清隐私</span>
+              <span class="status">已发货</span>
+            </div>
+          </div>
+
+          <div class="meta">
+            <span>订单编号：683073</span>
+            <span>2026-11-20 11:26:04</span>
+          </div>
+          <div class="goods">
+            <img class="thumb phone" src="assets/phone.png" alt="" />
+            <div class="gbody">
+              <div class="grow">
+                <div class="name">魅族 15</div>
+                <div class="price">¥396</div>
+              </div>
+              <div class="spec">黑色 | 4G+64G</div>
+              <div class="imei">IMEI：5555599245436113</div>
+            </div>
+          </div>
+
+          <div class="split"></div>
+
+          <div class="meta">
+            <span>订单编号：683066</span>
+            <span>2026-11-20 10:42:18</span>
+          </div>
+          <div class="goods">
+            <img class="thumb phone" src="assets/phone-2.png" alt="" />
+            <div class="gbody">
+              <div class="grow">
+                <div class="name">OPPO Reno8</div>
+                <div class="price">¥359</div>
+              </div>
+              <div class="spec">紫色 | 8G+256G</div>
+              <div class="imei">IMEI：860998877665544</div>
+            </div>
+          </div>
+
+          <div class="logi">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.8">
+              <path d="M3 7h11v8H3zM14 10h4l3 3v2h-7z"/>
+              <circle cx="7" cy="17.5" r="1.6" fill="#9A9A9A" stroke="none"/>
+              <circle cx="17" cy="17.5" r="1.6" fill="#9A9A9A" stroke="none"/>
+            </svg>
+            <span class="txt">已取件 | 伙伴在【深圳南山惠恒大厦店】完成分拣</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#C0C0C0" stroke-width="2">
+              <path d="M9 6l6 6-6 6"/>
+            </svg>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="hd">
+            <div class="who">
+              <span class="tag">我的</span>
+              <span class="store">当换邻小康-体验店1600（测试）</span>
+            </div>
+            <span class="status">已取消</span>
+          </div>
+          <div class="meta">
+            <span>订单编号：682586</span>
+            <span>2026-11-18 18:08:51</span>
+          </div>
+          <div class="goods">
+            <img class="thumb" src="assets/dog-black.png" alt="" />
+            <div class="gbody">
+              <div class="name">测试坤专用机型</div>
+              <div class="spec">移动版 | 玄黑 | 16G+512G</div>
+              <div class="imei">IMEI：5555295344241229</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="hd">
+            <div class="who">
+              <span class="tag person">伍宇龙ce</span>
+              <span class="store">yrg-测试物流-顺丰</span>
+            </div>
+            <span class="status">已取消</span>
+          </div>
+          <div class="meta">
+            <span>订单编号：682192</span>
+            <span>2026-11-17 20:06:18</span>
+          </div>
+          <div class="goods">
+            <img class="thumb" src="assets/dog-white.png" alt="" />
+            <div class="gbody">
+              <div class="name">测试坤专用机型</div>
+              <div class="spec">移动版 | 云海白 | 16G+256G</div>
+              <div class="imei">IMEI：5555769443892442</div>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </div>
+    <nav class="nav">
+      <a href="javascript:void(0)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C8C8C8" stroke-width="1.6">
+          <path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5Z"/>
+        </svg>
+        首页
+      </a>
+      <a href="javascript:void(0)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C8C8C8" stroke-width="1.6">
+          <path d="M4 19V11M10 19V5M16 19v-7M22 19H2"/>
+        </svg>
+        数据
+      </a>
+      <a class="fab" href="javascript:void(0)"><span>立即<br>下单</span></a>
+      <a class="on" href="javascript:void(0)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="#00C98A">
+          <rect x="4" y="3" width="16" height="18" rx="2"/>
+          <rect x="7" y="7" width="10" height="1.6" fill="#fff"/>
+          <rect x="7" y="11" width="10" height="1.6" fill="#fff"/>
+          <rect x="7" y="15" width="6" height="1.6" fill="#fff"/>
+        </svg>
+        订单
+      </a>
+      <a href="javascript:void(0)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C8C8C8" stroke-width="1.6">
+          <circle cx="12" cy="8" r="3.2"/>
+          <path d="M5 19.5c1.4-3 3.8-4.5 7-4.5s5.6 1.5 7 4.5"/>
+        </svg>
+        我的
+      </a>
+    </nav>
+  </div>
+</body>
+</html>
