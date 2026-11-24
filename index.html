@@ -269,14 +269,14 @@
     <div class="scroll">
       <div class="title">订单管理</div>
       <div class="tabs">
-        <div class="tab on">全部</div>
-        <div class="tab">待下单</div>
-        <div class="tab">待处理</div>
-        <div class="tab">待发货</div>
-        <div class="tab">售后订单<i class="dot"></i></div>
-        <div class="tab">已完成</div>
+        <div class="tab" data-view="all">全部</div>
+        <div class="tab" data-view="all">待下单</div>
+        <div class="tab" data-view="all">待处理</div>
+        <div class="tab on" data-view="ship">待发货</div>
+        <div class="tab" data-view="all">售后订单<i class="dot"></i></div>
+        <div class="tab" data-view="all">已完成</div>
       </div>
-      <div class="list">
+      <div class="list" id="listShip">
         <article class="card">
           <div class="hd">
             <div class="who">
@@ -327,7 +327,8 @@
 
           <div class="hint">过仓清隐私的订单每天15:00统一预约物流</div>
         </article>
-
+      </div>
+      <div class="list" id="listAll" style="display:none">
         <article class="card">
           <div class="hd">
             <div class="who">
@@ -342,7 +343,6 @@
               <span class="forward-mark">（仓库已转寄）</span>
             </div>
           </div>
-
           <div class="meta">
             <span>订单编号：683073</span>
             <span>2026-11-20 11:26:04</span>
@@ -358,25 +358,6 @@
               <div class="imei">IMEI：5555599245436113</div>
             </div>
           </div>
-
-          <div class="split"></div>
-
-          <div class="meta">
-            <span>订单编号：683066</span>
-            <span>2026-11-20 10:42:18</span>
-          </div>
-          <div class="goods">
-            <img class="thumb phone" src="assets/phone-2.png" alt="" />
-            <div class="gbody">
-              <div class="grow">
-                <div class="name">OPPO Reno8</div>
-                <div class="price">¥359</div>
-              </div>
-              <div class="spec">紫色 | 8G+256G</div>
-              <div class="imei">IMEI：860998877665544</div>
-            </div>
-          </div>
-
           <div class="logi">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9A9A9A" stroke-width="1.8">
               <path d="M3 7h11v8H3zM14 10h4l3 3v2h-7z"/>
@@ -389,7 +370,35 @@
             </svg>
           </div>
         </article>
-
+        <article class="card">
+          <div class="hd">
+            <div class="who">
+              <span class="tag">我的</span>
+              <span class="store">yrg-测试物流-顺丰</span>
+            </div>
+            <div class="side">
+              <span class="tag warehouse">过仓清隐私</span>
+              <span class="status wait">待发货</span>
+            </div>
+          </div>
+          <div class="meta">
+            <span>订单编号：683088</span>
+            <span>2026-11-21 09:16:40</span>
+          </div>
+          <div class="goods">
+            <img class="thumb phone" src="assets/phone.png" alt="" />
+            <div class="gbody">
+              <div class="grow">
+                <div class="name">红米 Note 12</div>
+                <div class="price">¥268</div>
+              </div>
+              <div class="spec">黑色 | 8G+128G</div>
+              <div class="imei">IMEI：861122334455667</div>
+            </div>
+          </div>
+          <div class="actions"><button class="ship">立即发货</button></div>
+          <div class="hint">过仓清隐私的订单每天15:00统一预约物流</div>
+        </article>
         <article class="card">
           <div class="hd">
             <div class="who">
@@ -468,5 +477,15 @@
       </a>
     </nav>
   </div>
+  <script>
+    document.querySelectorAll('.tabs .tab').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const view = tab.dataset.view || 'all';
+        document.querySelectorAll('.tabs .tab').forEach((t) => t.classList.toggle('on', t === tab));
+        document.getElementById('listShip').style.display = view === 'ship' ? 'block' : 'none';
+        document.getElementById('listAll').style.display = view === 'ship' ? 'none' : 'block';
+      });
+    });
+  </script>
 </body>
 </html>
